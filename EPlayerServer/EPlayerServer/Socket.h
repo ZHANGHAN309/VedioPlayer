@@ -23,6 +23,26 @@ public:
 	Buffer(int size) :std::string() { resize(size); }
 	Buffer(const std::string& str) :std::string(str) {}
 	Buffer(const char* str) :std::string(str) {}
+	Buffer(const char* str, size_t len) :std::string()
+	{
+		if (str != NULL)
+		{
+			resize(len);
+			memcpy((void*)c_str(), str, len);
+		}
+	}
+	Buffer(const char* begin, const char* end) :std::string()
+	{
+		if (begin != NULL && end != NULL)
+		{
+			long int len = end - begin;
+			if (len > 0)
+			{
+				resize(len);
+				memcpy((void*)c_str(), begin, len);
+			}
+		}
+	}
 public:
 	operator char* () { return (char*)c_str(); }
 	operator char* ()const { return (char*)c_str(); }
@@ -56,6 +76,13 @@ public:
 		addrin.sin_family = AF_INET;
 		addrin.sin_addr.s_addr = inet_addr(ip);
 		addrin.sin_port = port;
+		this->attr = attr;
+	}
+	SockParam(const sockaddr_in* addrin, int attr = 0)
+	{
+		this->ip = addrin->sin_addr.s_addr;
+		this->port = addrin->sin_port;
+		memcpy(&(this->addrin), addrin, sizeof(sockaddr_in));
 		this->attr = attr;
 	}
 	SockParam(const Buffer& path, int attr = 0)
@@ -127,6 +154,8 @@ public:
 public:
 	virtual operator int() { return m_socket; }
 	virtual operator int()const { return m_socket; }
+	virtual operator const sockaddr_in* () const { return &m_param.addrin; }
+	virtual operator sockaddr_in* () { return &m_param.addrin; }
 protected:
 	int m_socket;//Ì×½Ó×ÖÃèÊö·û Ä¬ÈÏ-1
 	//Ì×½Ó×Ö×´Ì¬

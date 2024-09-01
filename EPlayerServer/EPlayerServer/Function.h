@@ -2,13 +2,18 @@
 #include <unistd.h>//包含一些数据类型和api函数
 #include <functional>//与模板有关
 
+class SocketBase;
+class Buffer;
+
 //模板函数基类 可以通过基类指针访问模板函数
 class FuncBase
 {
 public:
 	FuncBase() {}
 	virtual ~FuncBase() {}//使用虚析构保证子类可以被析构
-	virtual int operator()() = 0;
+	virtual int operator()() { return -1; }
+	virtual int operator()(SocketBase*) { return -1; }
+	virtual int operator()(SocketBase*, const Buffer&) { return -1; }
 };
 
 //模板函数类 

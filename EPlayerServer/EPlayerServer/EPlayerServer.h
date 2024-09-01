@@ -5,7 +5,6 @@
 #define ERR_RETURN(ret,num) if(ret!=0){TRACEE("ret=%d errno=%d msg=%d\r\n",ret,errno,strerror(errno));return num;}
 #define WARNING_CONTINUE(ret) if(ret!=0){TRACEW("ret=%d errno=%d msg=%d\r\n",ret,errno,strerror(errno));}
 
-
 class EPlayerServer :public CBusinessBase
 {
 public:
@@ -24,7 +23,12 @@ public:
 	}
 	virtual int BusinessProcess(CProcess* proc)
 	{
+		using namespace std::placeholders;
 		int ret = 0;
+		ret = setConnected(&EPlayerServer::Connected, this, _1);
+		ERR_RETURN(ret, -1);
+		ret = setRecv(&EPlayerServer::Received, this, _1, _2);
+		ERR_RETURN(ret, -1);
 		ret = m_epoll.Create(m_count);
 		ERR_RETURN(ret, -1);
 		ret = m_pool.Start(m_count);
@@ -35,12 +39,15 @@ public:
 			ERR_RETURN(ret, -3);
 		}
 		int sock = 0;
+		sockaddr_in addrin;
 		while (m_epoll != -1)
 		{
-			ret = proc->RecvFD(sock);
+			ret = proc->RecvSock(sock, &addrin);
 			if (ret != 0 && sock <= 0)break;
 			SocketBase* pClient = new CSocket(sock);
 			if (pClient == NULL)continue;
+			ret = pClient->Init(SockParam(&addrin, SOCKETIp));
+			WARNING_CONTINUE(ret);
 			ret = m_epoll.Add(*pClient, EPdata((void*)pClient));
 			WARNING_CONTINUE(ret);
 			if (m_connected)
@@ -79,6 +86,14 @@ private:
 				}
 			}
 		}
+		return 0;
+	}
+	int Connected(SocketBase* pClient)
+	{
+		return 0;
+	}
+	int Received(SocketBase* pClient, const Buffer& data)
+	{
 		return 0;
 	}
 private:
