@@ -46,7 +46,7 @@ public:
 public:
 	int Create(int size);
 	ssize_t WaitForEpoll(EPevents& events, int timeout = 10);
-	int Add(int fd, const EPdata& data = EPdata(), uint32_t events = EPOLLIN);
+	int Add(int fd, const EPdata& data = EPdata(), uint32_t events = EPOLLIN|EPOLLERR);
 	int Mod(int fd, uint32_t events, const EPdata& data = EPdata());
 	int Del(int fd);
 	void Close();

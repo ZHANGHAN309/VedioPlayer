@@ -30,6 +30,8 @@ public:
 	void Close();
 	template<typename _FUNC_,typename... _ARGS_>
 	int AddTask(_FUNC_ func,_ARGS_... args);
+	size_t Size() { return m_pool.size(); }
+public:
 	ThreadPool(const ThreadPool&) = delete;
 	ThreadPool& operator=(const ThreadPool&) = delete;
 private:

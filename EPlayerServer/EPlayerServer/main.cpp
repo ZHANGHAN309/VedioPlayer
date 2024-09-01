@@ -1,6 +1,4 @@
-﻿#include "Process.h"
-#include "Logger.h"
-#include "ThreadPool.h"
+﻿#include "EPlayerServer.h"
 
 //Log子进程
 int CreateLogServer(CProcess* ProcLog)
@@ -49,7 +47,7 @@ int CreateClientServer(CProcess* ProcClient)
 	return 0;
 }
 
-int main()
+int old_test1()
 {
 	printf("==================================\r\n");
 	//CProcess::CreateDaemon();
@@ -92,5 +90,23 @@ int main()
 	char buffer[10] = "Hello";
 	write(fd, buffer, sizeof(buffer));
 	close(fd);*/
+	return 0;
+}
+int main()
+{
+	int ret = 0;
+
+	CProcess logServer;
+	ret = logServer.SetEntryFunc(CreateLogServer, &logServer);
+	ERR_RETURN(ret, -1);
+	ret = logServer.CreateSubProcess();
+	ERR_RETURN(ret, -2);
+
+	EPlayerServer business(2);
+	CServer server;
+	ret = server.Init(&business);
+	ERR_RETURN(ret, -3);
+	ret = server.Run();
+	ERR_RETURN(ret, -4);
 	return 0;
 }
