@@ -205,7 +205,6 @@ int UrlParser::Parser()
 			}
 		} while (target != NULL);
 	}
-
 	return 0;
 }
 
