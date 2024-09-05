@@ -53,11 +53,14 @@ public:
 	UrlParser(const Buffer& url);
 	~UrlParser() {}
 	int Parser();
+	//找不到返回一个空字符串
 	Buffer operator[](const Buffer& name)const;
 	Buffer Protocol()const { return m_protocol; }
 	Buffer Host()const { return m_host; }
+	Buffer Uri()const { return m_uri; }
 	//默认返回80
 	int Port()const { return m_port; }
+	//端口设置80，其他为空
 	void SetUrl(const Buffer& url);
 private:
 	Buffer m_url;

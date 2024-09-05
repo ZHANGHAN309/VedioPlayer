@@ -1,5 +1,5 @@
 #include "MysqlClient.h"
-#include <sstream>
+
 
 int CMysqlClient::Connect(const KeyValue& args)
 {
@@ -12,7 +12,7 @@ int CMysqlClient::Connect(const KeyValue& args)
 		atoi(args.at("port")),
 		NULL, 0);
 	if ((ret == NULL) && (mysql_errno(&m_db) != 0)) {
-		printf("%s %s\n", __FUNCTION__, mysql_errno(&m_db));
+		TRACEE("%s %s\n", __FUNCTION__, mysql_errno(&m_db));
 		mysql_close(&m_db);
 		bzero(&m_db, sizeof(m_db));
 		return -3;
@@ -214,7 +214,7 @@ Buffer _mysql_table_::Modify(const _Table_& values)
 	return sql;
 }
 
-Buffer _mysql_table_::Query()
+Buffer _mysql_table_::Query(const Buffer& condition)
 {
 	Buffer sql = "SELECT ";
 	for (size_t i = 0; i < FieldDefine.size(); i++)
@@ -222,7 +222,11 @@ Buffer _mysql_table_::Query()
 		if (i > 0)sql += ',';
 		sql += '`' + FieldDefine[i]->Name + "` ";
 	}
-	sql += " FROM " + (Buffer)*this + ";";
+	sql += " FROM " + (Buffer)*this + " ";
+	if (condition.size() > 0) {
+		sql += " WHERE " + condition;
+	}
+	sql += ";";
 	printf("sql = %s\n", (char*)sql);
 	return sql;
 }

@@ -54,7 +54,7 @@ public:
 	virtual Buffer Insert(const _Table_& values) = 0;
 	virtual Buffer Delete(const _Table_& values) = 0;
 	virtual Buffer Modify(const _Table_& values) = 0;
-	virtual Buffer Query() = 0;
+	virtual Buffer Query(const Buffer& condition = "") = 0;
 	//创建一个_Table_对象
 	virtual PTable Copy()const = 0;
 	virtual void ClearFieldUsed() = 0;
@@ -79,6 +79,7 @@ enum {
 };
 
 enum {
+	NONE = 0,
 	NOT_NULL = 1,
 	DEFAULT = 2,
 	UNIQUE = 4,
@@ -140,6 +141,13 @@ public:
 	unsigned Attr;
 	Buffer Default;
 	Buffer Check;
+	union {
+		bool Bool;
+		int Integer;
+		double Double;
+		Buffer* String;
+	}Value;
+	int nType;
 	//操作条件
 	unsigned Condition;
 };

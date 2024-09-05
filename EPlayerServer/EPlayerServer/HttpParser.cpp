@@ -58,7 +58,8 @@ size_t CHttpParser::Parser(const Buffer& data)
 	}
 	return ret;
 }
-
+//绑定一些回调函数
+//-------------------------------------------------------------------
 int CHttpParser::OnMessageBegin(http_parser* parser)
 {
 	return ((CHttpParser*)parser->data)->OnMessageBegin();
@@ -144,7 +145,7 @@ int CHttpParser::OnMessageComplete()
 	m_complete = true;
 	return 0;
 }
-
+//-------------------------------------------------------------------
 UrlParser::UrlParser(const Buffer& url)
 {
 	m_url = url;
@@ -152,6 +153,7 @@ UrlParser::UrlParser(const Buffer& url)
 
 int UrlParser::Parser()
 {
+	//https://www.cnblogs.com/yikoulinux/p/15876640.html
 	//分三步：协议、域名和端口、uri、键值对
 	//解析协议
 	const char* pos = m_url;
@@ -162,13 +164,20 @@ int UrlParser::Parser()
 	pos = target + 3;
 	target = strchr(pos, '/');
 	if (target == NULL) {
+		//当协议后面没有内容，表示该url是错误的
+		//https://
 		if (m_protocol.size() + 3 >= m_url.size())
 			return -2;
+		//当协议后面只有域名，没有文件路径名，这也是被允许的
+		//https://www.baidu.com
 		m_host = pos;
 		return 0;
 	}
+	//域名
+	//https://www.outlook.com:443/zhanghan/io
 	Buffer value = Buffer(pos, target);
 	if (value.size() == 0)return -3;
+	//如果有端口号，就把端口号保存到m_port，没有就直接保存m_host
 	target = strchr(value, ':');
 	if (target != NULL) {
 		m_host = Buffer(value, target);
@@ -179,6 +188,7 @@ int UrlParser::Parser()
 	}
 	pos = strchr(pos, '/');
 	//解析uri
+	//https://cn.bing.com/search?q=uri
 	target = strchr(pos, '?');
 	if (target == NULL) {
 		m_uri = pos;
@@ -187,6 +197,7 @@ int UrlParser::Parser()
 	else {
 		m_uri = Buffer(pos, target);
 		//解析key和value
+		//https://wx.mail.qq.com/?cancel_login=true&from=get_ticket_fail
 		pos = target + 1;
 		const char* t = NULL;
 		do {
