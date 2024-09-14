@@ -109,6 +109,8 @@ int Logger::Start()
 	m_server = new CSocket();
 	if (m_server == NULL)
 	{
+		TRACEE("before close\r\n");
+		printf("%s(%d):<%s> ret=%d,errno=%d,msg=%s\r\n", __FILE__, __LINE__, __FUNCTION__, ret, errno, strerror(errno));
 		Close();
 		return -5;
 	}
@@ -117,6 +119,8 @@ int Logger::Start()
 	//printf("%s(%d):<%s> ret=%d,errno=%d,msg=%s\r\n", __FILE__, __LINE__, __FUNCTION__, ret, errno, strerror(errno));
 	if (ret != 0)
 	{
+		TRACEE("before close ret=%d\r\n", ret);
+		printf("%s(%d):<%s> ret=%d,errno=%d,msg=%s\r\n", __FILE__, __LINE__, __FUNCTION__, ret, errno, strerror(errno));
 		Close();
 		return -6;
 	}
@@ -125,6 +129,8 @@ int Logger::Start()
 	//printf("%s(%d):<%s> ret=%d,errno=%d,msg=%s\r\n", __FILE__, __LINE__, __FUNCTION__, ret, errno, strerror(errno));
 	if (ret != 0)
 	{
+		TRACEE("before close ret=%d\r\n", ret);
+		printf("%s(%d):<%s> ret=%d,errno=%d,msg=%s\r\n", __FILE__, __LINE__, __FUNCTION__, ret, errno, strerror(errno));
 		Close();
 		return -7;
 	}
@@ -132,6 +138,8 @@ int Logger::Start()
 	//printf("%s(%d):<%s> ret=%d,errno=%d,msg=%s\r\n", __FILE__, __LINE__, __FUNCTION__, ret, errno, strerror(errno));
 	if (ret != 0)
 	{
+		TRACEE("before close ret=%d\r\n", ret);
+		printf("%s(%d):<%s> ret=%d,errno=%d,msg=%s\r\n", __FILE__, __LINE__, __FUNCTION__, ret, errno, strerror(errno));
 		Close();
 		return -8;
 	}

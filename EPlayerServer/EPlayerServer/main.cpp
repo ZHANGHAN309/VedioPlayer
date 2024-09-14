@@ -160,9 +160,26 @@ int sql_test()
 	return 0;
 }
 
+int Main()
+{
+	int ret = 0;
+	CProcess proclog;
+	ret = proclog.SetEntryFunc(CreateLogServer, &proclog);
+	ERR_RETURN(ret, -1);
+	ret = proclog.CreateSubProcess();
+	ERR_RETURN(ret, -2);
+	EPlayerServer business(2);
+	CServer server;
+	ret = server.Init(&business);
+	ERR_RETURN(ret, -3);
+	ret = server.Run();
+	ERR_RETURN(ret, -4);
+	return 0;
+}
+
 int main()
 {
 	int ret = 0;
-	ret = sql_test();
+	ret = Main();
 	return ret;
 }

@@ -100,7 +100,7 @@ public:
 		sockaddr_in addrin;
 		while (m_epoll != -1)
 		{
-			ret = proc->RecvSock(sock, &addrin);
+			ret = proc->RecvSocket(sock, &addrin);
 			if (ret != 0 && sock <= 0)break;
 			SocketBase* pClient = new CSocket(sock);
 			if (pClient == NULL)continue;
@@ -265,6 +265,7 @@ private:
 			//post´¦Àí
 
 		}
+		return 0;
 	}
 private:
 	CEpoll m_epoll;

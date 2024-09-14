@@ -153,45 +153,45 @@ public:
 	//	memcpy(&fd, (int*)CMSG_DATA(cmsg), sizeof(int));//获取文件描述符
 	//	return 0;
 	//}
-	int SendSock(int fd, const sockaddr_in* addrin)
-	{
+
+	int SendSocket(int fd, const sockaddr_in* addrin) {//主进程完成
+		struct msghdr msg;
 		iovec iov;
-		iov.iov_base = (void*)addrin;
-		iov.iov_len = sizeof(struct sockaddr_in);
-		msghdr msg;
+		char buf[20] = "";
 		bzero(&msg, sizeof(msg));
-		msg.msg_iov = &iov;//设置缓冲区
+		memcpy(buf, addrin, sizeof(sockaddr_in));
+		iov.iov_base = buf;
+		iov.iov_len = sizeof(buf);
+		msg.msg_iov = &iov;
 		msg.msg_iovlen = 1;
+
+		// 下面的数据，才是我们需要传递的。
 		cmsghdr* cmsg = (cmsghdr*)calloc(1, CMSG_LEN(sizeof(int)));
-		if (cmsg == NULL)
-		{
-			perror("Create cmsg failed!\r\n");
-			return -1;
-		}
+		if (cmsg == NULL)return -1;
 		cmsg->cmsg_len = CMSG_LEN(sizeof(int));
 		cmsg->cmsg_level = SOL_SOCKET;
 		cmsg->cmsg_type = SCM_RIGHTS;
-		printf("%s(%d):<%s> fd=%d pid=%d pipes[0]=%d\r\n", __FILE__, __LINE__, __FUNCTION__, fd, getpid(), pipes[0]);
-		*(int*)CMSG_DATA(cmsg) = (int)fd;
+		*(int*)CMSG_DATA(cmsg) = fd;
 		msg.msg_control = cmsg;
-		msg.msg_controllen = CMSG_LEN(sizeof(int));
-		int ret = (int)sendmsg(pipes[0], &msg, 0);
-		printf("%s(%d):<%s> ret=%d pid=%d pipes[0]=%d\r\n", __FILE__, __LINE__, __FUNCTION__, ret, getpid(), pipes[m_pid]);
+		msg.msg_controllen = cmsg->cmsg_len;
+
+		ssize_t ret = sendmsg(pipes[1], &msg, 0);
 		free(cmsg);
-		if (ret <= 0)
-		{
-			perror("Sendmsg failed!\r\n");
+		if (ret == -1) {
+			printf("********errno %d msg:%s\n", errno, strerror(errno));
 			return -2;
 		}
 		return 0;
 	}
-	//接收文件描述符
-	int RecvSock(int& fd, sockaddr_in* addrin)
+
+	int RecvSocket(int& fd, sockaddr_in* addrin)
 	{
 		msghdr msg;
 		iovec iov;
-		iov.iov_base = addrin;
-		iov.iov_len = sizeof(sockaddr_in);
+		char buf[20] = "";
+		bzero(&msg, sizeof(msg));
+		iov.iov_base = buf;
+		iov.iov_len = sizeof(buf);
 		msg.msg_iov = &iov;
 		msg.msg_iovlen = 1;
 
@@ -202,14 +202,13 @@ public:
 		cmsg->cmsg_type = SCM_RIGHTS;
 		msg.msg_control = cmsg;
 		msg.msg_controllen = CMSG_LEN(sizeof(int));
-		ssize_t ret = recvmsg(pipes[1], &msg, 0);
+		ssize_t ret = recvmsg(pipes[0], &msg, 0);
 		if (ret == -1) {
 			free(cmsg);
-			perror("Recv msg failed!\r\n");
 			return -2;
 		}
+		memcpy(addrin, buf, sizeof(sockaddr_in));
 		fd = *(int*)CMSG_DATA(cmsg);
-		printf("%s(%d):<%s> fd=%d pid=%d pipes[1]=%d\r\n", __FILE__, __LINE__, __FUNCTION__, fd, getpid(), pipes[m_pid]);
 		free(cmsg);
 		return 0;
 	}

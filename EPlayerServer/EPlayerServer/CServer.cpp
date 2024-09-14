@@ -86,7 +86,7 @@ int CServer::ThreadFunc()
 							SocketBase* client = NULL;
 							ret = m_server->Link(&client);
 							if (ret != 0)continue;
-							ret = m_process.SendSock(*client, *client);
+							ret = m_process.SendSocket(*client, *client);
 							if (ret != 0)
 								TRACEE("recv client %d failed!\r\n", (int)*client);
 							delete client;
